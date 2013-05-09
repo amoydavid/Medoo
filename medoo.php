@@ -24,34 +24,38 @@ class medoo
 	public function __construct($database_name)
 	{
 		try {
-			$type = strtolower($this->database_type);
-			switch ($type)
-			{
-				case 'mysql':
-				case 'pgsql':
-					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name, 
-						$this->username,
-						$this->password
-					);
-					break;
-
-				case 'mssql':
-				case 'sybase':
-					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name . ',' .
-						$this->username . ',' .
-						$this->password
-					);
-					break;
-
-				case 'sqlite':
-					$this->pdo = new PDO(
-						$type . ':' . $database_name
-					);
-					break;
+			if ($datbase_name instanceof PDO) {
+				$this->pdo = $database_name
+			} else {
+				$type = strtolower($this->database_type);
+				switch ($type)
+				{
+					case 'mysql':
+					case 'pgsql':
+						$this->pdo = new PDO(
+							$type . ':host=' . $this->server . ';dbname=' . $database_name, 
+							$this->username,
+							$this->password
+						);
+						break;
+	
+					case 'mssql':
+					case 'sybase':
+						$this->pdo = new PDO(
+							$type . ':host=' . $this->server . ';dbname=' . $database_name . ',' .
+							$this->username . ',' .
+							$this->password
+						);
+						break;
+	
+					case 'sqlite':
+						$this->pdo = new PDO(
+							$type . ':' . $database_name
+						);
+						break;
+				}
+				$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 			}
-			$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 		}
 		catch (PDOException $e) {
 			echo $e->getMessage();
